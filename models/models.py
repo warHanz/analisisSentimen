@@ -151,16 +151,33 @@ def train_and_evaluate_multiple_splits(texts, labels, test_sizes=[0.1, 0.2, 0.3]
 
 def plot_data_split(train_size, test_size):
     """
-    Menghasilkan diagram pie yang menunjukkan pembagian data latih dan uji.
+    Menghasilkan diagram pie yang menunjukkan pembagian data latih dan uji,
+    dengan label yang menampilkan jumlah data dan persentasenya secara langsung.
     """
     labels = ['Data Latih', 'Data Uji']
     sizes = [train_size, test_size]
     colors = ['#4CAF50', '#FFC107']
+    total = train_size + test_size
+    label_text = [
+        f"{label}<br>{size} data<br>{size/total:.1%}" 
+        for label, size in zip(labels, sizes)
+    ]
 
-    fig = go.Figure(data=[go.Pie(labels=labels, values=sizes, hole=.3,
-                                 marker_colors=colors,
-                                 hovertemplate="<b>%{label}</b><br>Jumlah: %{value}<br>Persentase: %{percent}<extra></extra>")])
-    fig.update_layout(title_text='Pembagian Data Latih dan Uji', title_x=0.5, height=350, margin=dict(l=20, r=20, t=50, b=20))
+    fig = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=sizes,
+        hole=.3,
+        marker_colors=colors,
+        text=label_text,
+        textinfo='text',
+        hovertemplate="<b>%{label}</b><br>Jumlah: %{value}<br>Persentase: %{percent}<extra></extra>"
+    )])
+    fig.update_layout(
+        title_text='Pembagian Data Latih dan Uji',
+        title_x=0.5,
+        height=350,
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
     return fig
 
 def plot_accuracy_comparison(results, split_name):

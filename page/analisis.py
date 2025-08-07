@@ -190,17 +190,42 @@ def app():
                 else:
                     colors = {'Positive': '#28a745', 'Negative': '#dc3545', 'Neutral': '#6c757d'}
                     color_list = [colors.get(sentiment, '#808080') for sentiment in sentiment_counts.index]
-                    fig_pie = px.pie(
-                        values=sentiment_counts.values,
-                        names=sentiment_counts.index,
-                        title="Proporsi Sentimen",
-                        hole=0.4,
+                    # Bar chart with percentage and count labels
+                    sentiment_percent = (sentiment_counts / sentiment_counts.sum() * 100).round(2)
+                    bar_df = pd.DataFrame({
+                        'Sentiment': sentiment_counts.index,
+                        'Jumlah': sentiment_counts.values,
+                        'Persentase': sentiment_percent.values
+                    })
+                    # Combine count and percent for label
+                    bar_df['Label'] = bar_df.apply(lambda row: f"{int(row['Jumlah'])} ({row['Persentase']}%)", axis=1)
+                    fig_bar = px.bar(
+                        bar_df,
+                        x='Sentiment',
+                        y='Jumlah',
+                        color='Sentiment',
                         color_discrete_sequence=color_list,
-                        height=300
+                        text='Label',
+                        height=350
                     )
-                    fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-                    fig_pie.update_layout(showlegend=True, margin=dict(l=10, r=10, t=40, b=10))
-                    st.plotly_chart(fig_pie, use_container_width=True, key="pie_chart_new")
+                    fig_bar.update_traces(
+                        texttemplate='%{text}',
+                        textposition='outside',
+                        marker_line_width=1.5,
+                        marker_line_color='black'
+                    )
+                    fig_bar.update_layout(
+                        yaxis_title="Jumlah Data",
+                        xaxis_title="Sentimen",
+                        uniformtext_minsize=14,
+                        uniformtext_mode='show',
+                        showlegend=False,
+                        margin=dict(l=10, r=10, t=40, b=10),
+                        font=dict(size=16),  # Set global font size
+                        xaxis=dict(title_font=dict(size=18), tickfont=dict(size=16)),
+                        yaxis=dict(title_font=dict(size=18), tickfont=dict(size=16))
+                    )
+                    st.plotly_chart(fig_bar, use_container_width=True, key="bar_chart_sentiment")
 
             st.markdown("---")
             st.markdown("<h3>Word Cloud</h3>", unsafe_allow_html=True)
